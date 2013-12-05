@@ -32,3 +32,10 @@ SCL   SCL
 </pre>
 
 and connection of external power to GND & V+
+
+
+links
+-----
+
++ http://elinux.org/RPi_Low-level_peripherals
++ http://learn.adafruit.com/adafruit-16-channel-servo-driver-with-raspberry-pi/hooking-it-up
