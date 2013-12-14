@@ -34,6 +34,21 @@ SCL   SCL
 and connection of external power to GND & V+
 
 
+hc-sr04
+-------
+
+Wiring:
+
+<pre>
+pi      hc-sr04
+5v      Vcc
+GND     GND
+GPIO23  Trigger
+GPIO24  -- 235ohm -- Echo
+GPIO24  -- 470ohm -- GND
+</pre>
+
+
 links
 -----
 
