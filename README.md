@@ -49,9 +49,24 @@ GPIO24  -- 470ohm -- GND
 </pre>
 
 
+mpu6050
+-------
+
+Wiring:
+
+<pre>
+pi	mpu6050
+3v3	3v3
+GND	GND
+SDA	SDA
+SCL	SCL
+</pre>
+
+
 links
 -----
 
 + http://elinux.org/RPi_Low-level_peripherals
 + http://learn.adafruit.com/adafruit-16-channel-servo-driver-with-raspberry-pi/hooking-it-up
 + http://learn.adafruit.com/downloads/pdf/adafruit-16-channel-servo-driver-with-raspberry-pi.pdf
++ http://blog.bitify.co.uk/2013/11/reading-data-from-mpu-6050-on-raspberry.html
