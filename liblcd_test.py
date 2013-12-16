@@ -17,9 +17,9 @@ def main():
 	time.sleep(3) # 3 second delay 
 
 	lcd.setline(1)
-	lcd.string("Raspberrypi-spy",3)
+	lcd.string("COOOOL",3)
 	lcd.setline(2)
-	lcd.string(".co.uk",3)  
+	lcd.string("paf",3)  
 
 	time.sleep(20) # 20 second delay 
 
