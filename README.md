@@ -71,3 +71,4 @@ links
 + http://learn.adafruit.com/downloads/pdf/adafruit-16-channel-servo-driver-with-raspberry-pi.pdf
 + http://blog.bitify.co.uk/2013/11/reading-data-from-mpu-6050-on-raspberry.html
 + https://github.com/rm-hull/hmc5883l
+
