@@ -6,7 +6,7 @@ import time
 # Initialise the PWM device using the default address
 pwm = PWM(0x40, debug=True)
 
-servoMin = 120  # Min pulse length out of 4096
+servoMin = 130  # Min pulse length out of 4096
 servoMax = 610  # Max pulse length out of 4096
 
 def setServoPulse(channel, pulse):
