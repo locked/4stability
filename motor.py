@@ -6,7 +6,7 @@ class Motor():
 	servoMin = 150  # Min pulse length out of 4096
 	servoMax = 600  # Max pulse length out of 4096
 	servoInit = 185
-	servoMotorStart = 245
+	servoMotorStart = 220
 
 	pwm = None
 

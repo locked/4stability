@@ -54,10 +54,10 @@ elif options.action == "manual":
 			sys.stdout.write("\r%d%% (%d)" % (speed_percent, pos))
 			sys.stdout.flush()
 			#time.sleep(.1)
-		m.reset()
 	except: pass
 	finally:
 		# Reset terminal
 		termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
 		fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
+		m.reset()
 
