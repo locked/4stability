@@ -12,17 +12,8 @@ parser.add_option("-a", "--action", dest="action", help="reset/manual")
 (options, args) = parser.parse_args()
 
 
-# Terminal init stuff found on stackoverflow (SlashV)
-fd = sys.stdin.fileno()
-oldterm = termios.tcgetattr(fd)
-newattr = termios.tcgetattr(fd)
-newattr[3] = newattr[3] & ~termios.ICANON & ~termios.ECHO
-termios.tcsetattr(fd, termios.TCSANOW, newattr)
-oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
-fcntl.fcntl(fd, fcntl.F_SETFL, oldflags | os.O_NONBLOCK)
-
-
 m = motor.Motor()
+
 
 if options.action == "reset":
 	m.reset()
@@ -39,6 +30,15 @@ elif options.action == "cycle":
 elif options.action == "manual":
 	m.init()
 
+	# Terminal init stuff found on stackoverflow (SlashV)
+	fd = sys.stdin.fileno()
+	oldterm = termios.tcgetattr(fd)
+	newattr = termios.tcgetattr(fd)
+	newattr[3] = newattr[3] & ~termios.ICANON & ~termios.ECHO
+	termios.tcsetattr(fd, termios.TCSANOW, newattr)
+	oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
+	fcntl.fcntl(fd, fcntl.F_SETFL, oldflags | os.O_NONBLOCK)
+
 	try:
 		speed_percent = 0
 		while (True):
@@ -47,12 +47,12 @@ elif options.action == "manual":
 			except IOError:
 				c = ''
 			if c == "-":
-				speed_percent -= 1
+				speed_percent = speed_percent - 1 if speed_percent > 1 else 0
 			elif c == "+":
-				speed_percent += 1
-			sys.stdout.write("\r%d" % speed_percent)
+				speed_percent = speed_percent + 1 if speed_percent < 100 else 0
+			pos = m.set_speed(speed_percent/100.0)
+			sys.stdout.write("\r%d%% (%d)" % (speed_percent, pos))
 			sys.stdout.flush()
-			m.set_speed(speed_percent)
 			#time.sleep(.1)
 		m.reset()
 	except: pass
