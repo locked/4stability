@@ -9,26 +9,28 @@ class Motor():
 	servoMotorStart = 220
 
 	pwm = None
+	debug = False
 
 	def __init__(self, debug=True):
+		self.debug = debug
 		# Initialise the PWM device using the default address
 		self.pwm = PWM(0x40, debug=debug)
 		self.pwm.setPWMFreq(60)           # Set frequency to 60 Hz
 		self.reset()
 
 	def init(self):
-		print "Init...",
+		if self.debug: print "Init...",
 		self.pwm.setPWM(0, 0, self.servoInit)
 		time.sleep(3)
-		print "Done"
+		if self.debug: print "Done"
 
 	def reset(self):
-		print "Reset servo (minimum) %d" % self.servoMin
+		if self.debug: print "Reset servo (minimum) %d" % self.servoMin
 		self.pwm.setPWM(0, 0, self.servoMin)
 
 	def set_speed(self, percent):
 		if percent > 1 or percent < 0:
-			print "Invalid value, must be between 0 and 1"
+			if self.debug: print "Invalid value, must be between 0 and 1"
 		servo_pos = int((self.servoMax - self.servoMotorStart) * percent + self.servoMotorStart)
 		#print "Set to %.2f%% (%d)" % (percent, servo_pos)
 		self.pwm.setPWM(0, 0, servo_pos)
