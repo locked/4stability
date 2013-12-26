@@ -7,6 +7,7 @@ import curses
 
 import motor
 import adxl345
+import hcsr04
 
 
 parser = OptionParser()
@@ -16,6 +17,7 @@ parser.add_option("-p", "--p", dest="p", help="")
 
 m = motor.Motor(debug=False)
 accel = adxl345.ADXL345()
+dist = hcsr04.HCSR04()
 
 #m.init()
 
@@ -26,6 +28,7 @@ stdscr = curses.initscr()
 try:
 	stdscr.nodelay(1)
 	while (True):
+		distance = dist.measure()
 		axis = accel.getAxes()
 		#pos = m.set_speed(speed_percent/100.0)
 
@@ -44,8 +47,11 @@ try:
 		stdscr.addstr(4, 20, "y:%.2f" % axis['y'])
 		stdscr.addstr(4, 30, "z:%.2f" % axis['z'])
 
-		stdscr.addstr(7, 8, "Motor:")
-		stdscr.addstr(9, 9, "[%d%% (%d)]" % (speed_percent, pos))
+		stdscr.addstr(7, 8, "Distance:")
+		stdscr.addstr(9, 9, "[%.1f]" % (distance))
+
+		stdscr.addstr(12, 8, "Motor:")
+		stdscr.addstr(14, 9, "[%d%% (%d)]" % (speed_percent, pos))
 		stdscr.refresh()
 		time.sleep(0.01)
 except Exception as e:
