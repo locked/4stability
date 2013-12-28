@@ -19,7 +19,7 @@ m = motor.Motor(debug=False)
 accel = adxl345.ADXL345()
 dist = hcsr04.HCSR04()
 
-#m.init()
+m.init()
 
 speed_percent = 0
 
@@ -30,7 +30,7 @@ try:
 	while (True):
 		distance = dist.measure()
 		axis = accel.getAxes()
-		#pos = m.set_speed(speed_percent/100.0)
+		pos = m.set_speed(speed_percent/100.0)
 
 		cn = stdscr.getch(0, 0)
 		c = chr(cn) if cn>0 and cn<255 else ''
