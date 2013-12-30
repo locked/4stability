@@ -32,11 +32,15 @@ class ADXL345:
     address = None
     bus = None
 
-    def __init__(self, address = 0x53):        
+    def __init__(self, address=0x53, bwrate=None, range=None):
         self.address = address
         self.bus = smbus.SMBus(1)
-        self.setBandwidthRate(self.BW_RATE_100HZ)
-        self.setRange(self.RANGE_2G)
+        if bwrate is None:
+            bwrate = self.BW_RATE_100HZ
+        self.setBandwidthRate(bwrate)
+        if range is None:
+            range = self.RANGE_2G
+        self.setRange(range)
         self.enableMeasurement()
 
     def enableMeasurement(self):
