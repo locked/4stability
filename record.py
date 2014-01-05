@@ -32,12 +32,15 @@ def experiment(bwrate, range, max_speed):
 
 			if start_timeout is None:
 				speed_percent += 0.2
+				print speed_percent
+			else:
+				print time.time() - start_timeout
 			if speed_percent > max_speed: # max 34
+				speed_percent = max_speed
 				start_timeout = time.time()
 				#break
-			if time.time() - start_timeout > 5:
+			if start_timeout is not None and (time.time() - start_timeout) > 5:
 				break
-			print speed_percent
 			pos = m.set_speed(speed_percent/100.0)
 
 			ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
@@ -67,13 +70,13 @@ def experiment(bwrate, range, max_speed):
 				spamwriter.writerow(line)
 
 #bwrates = [adxl345.ADXL345.BW_RATE_1600HZ, adxl345.ADXL345.BW_RATE_800HZ, adxl345.ADXL345.BW_RATE_200HZ, adxl345.ADXL345.BW_RATE_100HZ, adxl345.ADXL345.BW_RATE_50HZ, adxl345.ADXL345.BW_RATE_25HZ]
-bwrates = [adxl345.ADXL345.BW_RATE_1HZ, adxl345.ADXL345.BW_RATE_01HZ]
+bwrates = [adxl345.ADXL345.BW_RATE_1HZ, adxl345.ADXL345.BW_RATE_3HZ]
 #ranges = [adxl345.ADXL345.RANGE_2G, adxl345.ADXL345.RANGE_4G, adxl345.ADXL345.RANGE_8G, adxl345.ADXL345.RANGE_16G]
 ranges = [adxl345.ADXL345.RANGE_2G]
 for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
-		experiment(bwrate, range, 34)
+		experiment(bwrate, range, 33)
 		time.sleep(3)
 
 m.reset()
