@@ -20,6 +20,8 @@ class ADXL345:
     BW_RATE_100HZ       = 0x0B
     BW_RATE_50HZ        = 0x0A
     BW_RATE_25HZ        = 0x09
+    BW_RATE_1HZ         = 0x05
+    BW_RATE_01HZ        = 0x00
 
     RANGE_2G            = 0x00
     RANGE_4G            = 0x01
