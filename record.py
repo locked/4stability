@@ -24,13 +24,18 @@ def experiment(bwrate, range, max_speed):
 		print 'start experiment:'+str(bwrate)+'@'+str(range)
 		lines = []
 		speed_percent = 0.0
+		start_timeout = None
 		accel = adxl345.ADXL345(bwrate=bwrate, range=range)
 		while (True):
 			distance = 0 #dist.measure()
 			axis = accel.getAxes()
 
-			speed_percent += 0.2
+			if start_timeout is None:
+				speed_percent += 0.2
 			if speed_percent > max_speed: # max 34
+				start_timeout = time.time()
+				#break
+			if time.time() - start_timeout > 5:
 				break
 			print speed_percent
 			pos = m.set_speed(speed_percent/100.0)
@@ -68,7 +73,7 @@ ranges = [adxl345.ADXL345.RANGE_2G]
 for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
-		experiment(bwrate, range, 36)
+		experiment(bwrate, range, 34)
 		time.sleep(3)
 
 m.reset()
