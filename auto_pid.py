@@ -38,7 +38,7 @@ try:
 	error = 0
 	dt = 0
 	Kp = 0.0001
-	Ki = 0.000000001
+	Ki = 0.00000001
 	Kd = 1
 	start_time = time.time()*100000
 	lines = []
