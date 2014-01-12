@@ -48,7 +48,7 @@ def experiment(bwrate, range, max_speed):
 
 			line = []
 			line.append(ts)
-			reltime = start_time - time.time()*100000
+			reltime = time.time()*100000 - start_time
 			line.append(reltime)
 			line.append(round(speed_percent,2))
 			line.append(axis['x'])
