@@ -17,9 +17,12 @@ class HCSR04:
 		GPIO.output(self.pin_gpio_trigger, True)
 		time.sleep(0.00001)
 		GPIO.output(self.pin_gpio_trigger, False)
+		tstart = time.time()
 		start = time.time()
-		while GPIO.input(self.pin_gpio_echo)==0:
+		while GPIO.input(self.pin_gpio_echo)==0 or time.time()-tstart>2:
 			start = time.time()
+		if time.time()-tstart>2:
+			return 0
 		while GPIO.input(self.pin_gpio_echo)==1:
 			stop = time.time()
 		elapsed = stop-start

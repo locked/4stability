@@ -28,7 +28,7 @@ def experiment(bwrate, range, max_speed):
 		start_time = time.time()*100000
 		accel = adxl345.ADXL345(bwrate=bwrate, range=range)
 		while (True):
-			distance = 0 #dist.measure()
+			distance = dist.measure()
 			axis = accel.getAxes()
 
 			if start_timeout is None:
@@ -74,13 +74,13 @@ def experiment(bwrate, range, max_speed):
 				spamwriter.writerow(line)
 
 #bwrates = [adxl345.ADXL345.BW_RATE_1600HZ, adxl345.ADXL345.BW_RATE_800HZ, adxl345.ADXL345.BW_RATE_200HZ, adxl345.ADXL345.BW_RATE_100HZ, adxl345.ADXL345.BW_RATE_50HZ, adxl345.ADXL345.BW_RATE_25HZ]
-bwrates = [adxl345.ADXL345.BW_RATE_1HZ, adxl345.ADXL345.BW_RATE_25HZ]
+bwrates = [adxl345.ADXL345.BW_RATE_25HZ, adxl345.ADXL345.BW_RATE_100HZ]
 #ranges = [adxl345.ADXL345.RANGE_2G, adxl345.ADXL345.RANGE_4G, adxl345.ADXL345.RANGE_8G, adxl345.ADXL345.RANGE_16G]
 ranges = [adxl345.ADXL345.RANGE_2G]
 for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
-		experiment(bwrate, range, 21)
+		experiment(bwrate, range, 21.4)
 		time.sleep(3)
 
 m.reset()
