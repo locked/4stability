@@ -37,27 +37,32 @@ try:
 	diff_speed = 0
 	error = 0
 	dt = 0
-	Kp = 0.0003
-	Ki = 0
-	Kd = 0
+	Kp = 0.00005
+	Ki = 0.00005
+	Kd = 0.0001
 	start_time = time.time()*100000
 	lines = []
+	speed_percent = 20.5
+	pos = m.set_speed(speed_percent/100.0)
+	time.sleep(3)
 	while (True):
 		distance = 0 #dist.measure()
 		axis = accel.getAxes()
 
 		if lastt > 0:
+			#error = 0 + axis['y']
 			error = 0 - axis['y']
 			dt = time.time()*1000 - lastt
 			integral = integral + error * dt
 			derivative = (error - previous_error)/dt
+			#speed_percent = Kp * error + Ki * integral + Kd * derivative
 			diff_speed = Kp * error + Ki * integral + Kd * derivative
 			previous_error = error
-		lastt = time.time()*100000
+		lastt = time.time()*1000
 
 		speed_percent = speed_percent - diff_speed
-		if speed_percent > 23:
-			speed_percent = 23
+		if speed_percent > 22:
+			speed_percent = 22
 		if speed_percent < 0:
 			speed_percent = 0
 		pos = m.set_speed(speed_percent/100.0)
