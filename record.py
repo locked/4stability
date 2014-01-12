@@ -70,13 +70,13 @@ def experiment(bwrate, range, max_speed):
 				spamwriter.writerow(line)
 
 #bwrates = [adxl345.ADXL345.BW_RATE_1600HZ, adxl345.ADXL345.BW_RATE_800HZ, adxl345.ADXL345.BW_RATE_200HZ, adxl345.ADXL345.BW_RATE_100HZ, adxl345.ADXL345.BW_RATE_50HZ, adxl345.ADXL345.BW_RATE_25HZ]
-bwrates = [adxl345.ADXL345.BW_RATE_1HZ, adxl345.ADXL345.BW_RATE_3HZ]
+bwrates = [adxl345.ADXL345.BW_RATE_1HZ, adxl345.ADXL345.BW_RATE_3HZ, adxl345.ADXL345.BW_RATE_25HZ]
 #ranges = [adxl345.ADXL345.RANGE_2G, adxl345.ADXL345.RANGE_4G, adxl345.ADXL345.RANGE_8G, adxl345.ADXL345.RANGE_16G]
 ranges = [adxl345.ADXL345.RANGE_2G]
 for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
-		experiment(bwrate, range, 33)
+		experiment(bwrate, range, 25)
 		time.sleep(3)
 
 m.reset()
