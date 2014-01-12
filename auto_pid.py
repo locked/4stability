@@ -38,8 +38,8 @@ try:
 	error = 0
 	dt = 0
 	Kp = 0.0001
-	Ki = 0.0000001
-	Kd = 0.0001
+	Ki = 0.000000001
+	Kd = 1
 	start_time = time.time()*100000
 	lines = []
 	speed_percent = 20.5
@@ -57,7 +57,7 @@ try:
 			avgy = sum(ys) / float(len(ys))
 			error = 0 + avgy
 			dt = time.time()*1000 - lastt
-			integral = integral + error * dt * 0.001
+			integral = integral + error * dt
 			derivative = (error - previous_error)/dt
 			#speed_percent = Kp * error + Ki * integral + Kd * derivative
 			diff_speed = Kp * error + Ki * integral + Kd * derivative
