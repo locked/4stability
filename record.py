@@ -25,6 +25,7 @@ def experiment(bwrate, range, max_speed):
 		lines = []
 		speed_percent = 0.0
 		start_timeout = None
+		start_time = time.time()*100000
 		accel = adxl345.ADXL345(bwrate=bwrate, range=range)
 		while (True):
 			distance = 0 #dist.measure()
@@ -47,6 +48,8 @@ def experiment(bwrate, range, max_speed):
 
 			line = []
 			line.append(ts)
+			reltime = start_time - time.time()*100000
+			line.append(reltime)
 			line.append(round(speed_percent,2))
 			line.append(axis['x'])
 			line.append(axis['y'])
@@ -60,8 +63,9 @@ def experiment(bwrate, range, max_speed):
 	except Exception as e:
 		print e
 	finally:
-		pos = m.set_speed(0)
-		header = ["datetime", "speed", "x", "y", "z", "d", "speed_real"]
+		m.set_speed(0)
+		#time.sleep(0.1)
+		header = ["datetime", "reltime", "speed", "x", "y", "z", "d", "speed_real"]
 		ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
 		with open('results/'+ts+'_'+str(max_speed)+'-'+str(bwrate)+'@'+str(range)+'.csv', 'wb') as csvfile:
 			spamwriter = csv.writer(csvfile, delimiter='	', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -70,13 +74,13 @@ def experiment(bwrate, range, max_speed):
 				spamwriter.writerow(line)
 
 #bwrates = [adxl345.ADXL345.BW_RATE_1600HZ, adxl345.ADXL345.BW_RATE_800HZ, adxl345.ADXL345.BW_RATE_200HZ, adxl345.ADXL345.BW_RATE_100HZ, adxl345.ADXL345.BW_RATE_50HZ, adxl345.ADXL345.BW_RATE_25HZ]
-bwrates = [adxl345.ADXL345.BW_RATE_1HZ, adxl345.ADXL345.BW_RATE_3HZ, adxl345.ADXL345.BW_RATE_25HZ]
+bwrates = [adxl345.ADXL345.BW_RATE_1HZ, adxl345.ADXL345.BW_RATE_25HZ]
 #ranges = [adxl345.ADXL345.RANGE_2G, adxl345.ADXL345.RANGE_4G, adxl345.ADXL345.RANGE_8G, adxl345.ADXL345.RANGE_16G]
 ranges = [adxl345.ADXL345.RANGE_2G]
 for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
-		experiment(bwrate, range, 25)
+		experiment(bwrate, range, 21)
 		time.sleep(3)
 
 m.reset()
