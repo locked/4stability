@@ -9,6 +9,19 @@ class MPU6050:
 
 	address = 0x68
 
+	address_rate = 0x19
+	#address_sensitivity = 
+	MPU6050_RA_GYRO_CONFIG      0x1B
+	MPU6050_RA_ACCEL_CONFIG     0x1C
+
+	MPU6050_GCONFIG_FS_SEL_BIT      4
+	MPU6050_GCONFIG_FS_SEL_LENGTH   2
+
+	MPU6050_GYRO_FS_250         0x00
+	MPU6050_GYRO_FS_500         0x01
+	MPU6050_GYRO_FS_1000        0x02
+	MPU6050_GYRO_FS_2000        0x03
+
 
 	def read_byte(self, adr):
 	    return self.bus.read_byte_data(self.address, adr)
@@ -37,6 +50,11 @@ class MPU6050:
 	    radians = math.atan2(y, self.dist(x,z))
 	    return math.degrees(radians)
 
+	def set_rate(self, rate):
+		self.bus.write_byte_data(self.address, self.address_rate, rate)
+
+	def set_gyro_sensitivity(self, sensitivity):
+		self.bus.write_byte_data(self.address, self.address_sensitivity, sensitivity)
 
 	def init(self):
 		self.bus = smbus.SMBus(1)
