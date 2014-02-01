@@ -1,0 +1,2 @@
+datetime	reltime	speed	adxl_x	adxl_y	adxl_z	mpu_x	mpu_y	mpu_z	gx	gy	gz	yaw	pitch	roll	d	speed_real
+2014-02-01_15:14:18_606534	174932.3125	0.1	41.0	156.0	-223.0	0	0	0	0	0	0	0	0	0	0.0	220

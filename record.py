@@ -39,7 +39,7 @@ def experiment(bwrate, range, max_speed):
 			mpu.setDMPEnabled(True)
 			packetSize = mpu.dmpGetFIFOPacketSize()
 		while (True):
-			distance = 0 #dist.measure()
+			distance = dist.measure()
 			axis = accel.getAxes()
 			yaw = 0
 			pitch = 0
@@ -51,6 +51,7 @@ def experiment(bwrate, range, max_speed):
 			else:
 				gyro = {'x':0, 'y':0, 'z':0}
 				mpu_accel = {'x':0, 'y':0, 'z':0}
+				"""
 				# Get INT_STATUS byte
 				mpuIntStatus = mpu.getIntStatus()
 
@@ -83,6 +84,8 @@ def experiment(bwrate, range, max_speed):
 
 					#sys.stdout.write("\r[Yaw:%.2f Pitch:%.2f Roll:%.2f]" % (yaw, pitch, roll))
 					#sys.stdout.flush()
+				"""
+				(yaw, pitch, roll) = mpu.getYPR()
 
 
 			if start_timeout is None:
@@ -148,7 +151,7 @@ for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
 		#experiment(bwrate, range, 21.4)
-		experiment(bwrate, range, 22)
+		experiment(bwrate, range, 22.5)
 		time.sleep(3)
 
 m.reset()

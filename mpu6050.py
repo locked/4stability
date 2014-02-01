@@ -3,6 +3,7 @@
 # Python Standard Library Imports
 from time import sleep
 from math import atan, atan2, sqrt
+import math
 
 # External Imports
 pass
@@ -1734,3 +1735,35 @@ class MPU6050:
         # Resetting FIFO and clearing INT status one last time
         self.resetFIFO()
         self.getIntStatus()
+
+    def getYPR(self):
+				packetSize = self.dmpGetFIFOPacketSize()
+				# Get INT_STATUS byte
+				mpuIntStatus = self.getIntStatus()
+
+				yaw = 0
+				pitch = 0
+				roll = 0
+				if mpuIntStatus >= 2: # check for DMP data ready interrupt (this should happen frequently) 
+					# get current FIFO count
+					fifoCount = self.getFIFOCount()
+					if fifoCount == 1024:
+						# reset so we can continue cleanly
+						self.resetFIFO()
+						print('FIFO overflow!')
+					#else:
+					# wait for correct available data length, should be a VERY short wait
+					fifoCount = self.getFIFOCount()
+					while fifoCount < packetSize:
+						fifoCount = self.getFIFOCount()
+
+					result = self.getFIFOBytes(packetSize)
+					self.resetFIFO()
+					q = self.dmpGetQuaternion(result)
+					g = self.dmpGetGravity(q)
+					ypr = self.dmpGetYawPitchRoll(q, g)
+
+					yaw = ypr['yaw'] * 180 / math.pi
+					pitch = ypr['pitch'] * 180 / math.pi
+					roll = ypr['roll'] * 180 / math.pi
+				return (yaw, pitch, roll)

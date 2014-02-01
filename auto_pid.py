@@ -10,6 +10,7 @@ import datetime
 import motor
 import adxl345
 import hcsr04
+import mpu6050
 
 
 parser = OptionParser()
@@ -38,8 +39,8 @@ try:
 	error = 0
 	dt = 0
 	Kp = 0.0001
-	Ki = 0.0000001
-	Kd = 1
+	Ki = 0.00001
+	Kd = 0.5
 	start_time = time.time()*100000
 	lines = []
 	speed_percent = 20.5
@@ -47,14 +48,19 @@ try:
 	time.sleep(3)
 	ys = []
 	avgy = 0
+	axis = {}
+	mpu = mpu6050.MPU6050()
+	mpu.dmpInitialize()
+	mpu.setDMPEnabled(True)
 	while (True):
 		distance = 0 #dist.measure()
-		axis = accel.getAxes()
-		ys.append(axis['y'])
-		if len(ys) > 3: ys.pop(0)
+		#axis = accel.getAxes()
+		(axis['x'], axis['y'], axis['z']) = mpu.getYPR()
+		#ys.append(axis['y'])
+		#if len(ys) > 3: ys.pop(0)
 
 		if lastt > 0:
-			avgy = sum(ys) / float(len(ys))
+			avgy = axis['y'] #sum(ys) / float(len(ys))
 			error = 0 + avgy
 			dt = time.time()*1000 - lastt
 			integral = integral + error * dt
@@ -65,8 +71,8 @@ try:
 		lastt = time.time()*1000
 
 		speed_percent = speed_percent + diff_speed
-		if speed_percent > 22:
-			speed_percent = 22
+		if speed_percent > 25:
+			speed_percent = 25
 		if speed_percent < 10:
 			speed_percent = 10
 		pos = m.set_speed(speed_percent/100.0)
