@@ -58,13 +58,12 @@ def experiment(bwrate, range, max_speed):
 					# get current FIFO count
 					fifoCount = mpu.getFIFOCount()
 					if fifoCount == 1024:
-						print('FIFO Full')
 						# reset so we can continue cleanly
-					#	mpu.resetFIFO()
-					#	print('FIFO overflow!')
+						mpu.resetFIFO()
+						print('FIFO overflow!')
 					#else:
 					# wait for correct available data length, should be a VERY short wait
-					#fifoCount = mpu.getFIFOCount()
+					fifoCount = mpu.getFIFOCount()
 					while fifoCount < packetSize:
 						fifoCount = mpu.getFIFOCount()
 
