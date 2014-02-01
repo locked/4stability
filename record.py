@@ -39,7 +39,7 @@ def experiment(bwrate, range, max_speed):
 			mpu.setDMPEnabled(True)
 			packetSize = mpu.dmpGetFIFOPacketSize()
 		while (True):
-			distance = dist.measure()
+			distance = 0 #dist.measure()
 			axis = accel.getAxes()
 			yaw = 0
 			pitch = 0
