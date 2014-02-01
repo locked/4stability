@@ -68,6 +68,7 @@ def experiment(bwrate, range, max_speed):
 						fifoCount = mpu.getFIFOCount()
 
 					result = mpu.getFIFOBytes(packetSize)
+					mpu.resetFIFO()
 					q = mpu.dmpGetQuaternion(result)
 					g = mpu.dmpGetGravity(q)
 					ypr = mpu.dmpGetYawPitchRoll(q, g)
@@ -147,7 +148,7 @@ for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
 		#experiment(bwrate, range, 21.4)
-		experiment(bwrate, range, 22)
+		experiment(bwrate, range, 21.5)
 		time.sleep(3)
 
 m.reset()
