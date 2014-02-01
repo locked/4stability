@@ -86,7 +86,7 @@ def experiment(bwrate, range, max_speed):
 
 
 			if start_timeout is None:
-				speed_percent += 0.05
+				speed_percent += 0.1
 				print speed_percent
 			else:
 				print time.time() - start_timeout
@@ -125,7 +125,7 @@ def experiment(bwrate, range, max_speed):
 
 			line.append(pos)
 			lines.append(line)
-			time.sleep(0.05)
+			time.sleep(0.1)
 	except Exception as e:
 		print e
 	finally:
@@ -148,7 +148,7 @@ for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
 		#experiment(bwrate, range, 21.4)
-		experiment(bwrate, range, 21.5)
+		experiment(bwrate, range, 22)
 		time.sleep(3)
 
 m.reset()
