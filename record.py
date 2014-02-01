@@ -29,10 +29,12 @@ def experiment(bwrate, range, max_speed):
 		start_timeout = None
 		start_time = time.time()*100000
 		accel = adxl345.ADXL345(bwrate=bwrate, range=range)
-		mpu_mode = 'advanced'
+		#mpu_mode = 'advanced'
+		mpu_mode = 'basic'
 		if mpu_mode == 'basic':
 			mpu = mpu6050.MPU6050()
-			mpu.init()
+			mpu.initialize()
+			mpu.setRate(9) # 1khz / (1 + 4) = 200 Hz [9 = 100 Hz]
 		else:
 			mpu = mpu6050.MPU6050()
 			mpu.dmpInitialize()
@@ -151,7 +153,7 @@ for bwrate in bwrates:
 	for range in ranges:
 		#experiment(bwrate, range, 47)
 		#experiment(bwrate, range, 21.4)
-		experiment(bwrate, range, 22.5)
+		experiment(bwrate, range, 22)
 		time.sleep(3)
 
 m.reset()

@@ -1767,3 +1767,48 @@ class MPU6050:
 					pitch = ypr['pitch'] * 180 / math.pi
 					roll = ypr['roll'] * 180 / math.pi
 				return (yaw, pitch, roll)
+
+
+    def readall(self):
+		gyro_x = self.read_word_2c(0x43)
+		gyro_y = self.read_word_2c(0x45)
+		gyro_z = self.read_word_2c(0x47)
+		gyro_x_scaled = gyro_x / 131.0
+		gyro_y_scaled = gyro_y / 131.0
+		gyro_z_scaled = gyro_z / 131.0
+
+		accel_x = self.read_word_2c(0x3b)
+		accel_y = self.read_word_2c(0x3d)
+		accel_z = self.read_word_2c(0x3f)
+		accel_x_scaled = accel_x / 16384.0
+		accel_y_scaled = accel_y / 16384.0
+		accel_z_scaled = accel_z / 16384.0
+
+		#rot_x = self.get_x_rotation(accel_x_scaled, accel_y_scaled, accel_z_scaled)
+		#rot_y = self.get_y_rotation(accel_x_scaled, accel_y_scaled, accel_z_scaled)
+
+		data = {
+			'gyro': {'x': gyro_x, 'y': gyro_y, 'z': gyro_z},
+			'gyro_scaled': {'x': gyro_x_scaled, 'y': gyro_y_scaled, 'z': gyro_z_scaled},
+			'accel': {'x': accel_x, 'y': accel_y, 'z': accel_z},
+			'accel_scaled': {'x': accel_x_scaled, 'y': accel_y_scaled, 'z': accel_z_scaled},
+			#'rotation': {'x': rot_x, 'y': rot_y}
+		}
+
+		return data
+
+    def read_byte(self, adr):
+	    return self.i2c.readU8(adr)
+
+    def read_word(self, adr):
+	    high = self.i2c.readU8(adr)
+	    low = self.i2c.readU8(adr+1)
+	    val = (high << 8) + low
+	    return val
+
+    def read_word_2c(self, adr):
+	    val = self.read_word(adr)
+	    if (val >= 0x8000):
+	        return -((65535 - val) + 1)
+	    else:
+	        return val
