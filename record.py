@@ -39,9 +39,9 @@ def experiment(bwrate, range, max_speed):
 			mpu = mpu6050.MPU6050()
 			mpu.dmpInitialize()
 			mpu.setDMPEnabled(True)
-			packetSize = mpu.dmpGetFIFOPacketSize()
+			#packetSize = mpu.dmpGetFIFOPacketSize()
 		while (True):
-			distance = dist.measure()
+			distance = 0 #dist.measure()
 			axis = accel.getAxes()
 			yaw = 0
 			pitch = 0
@@ -130,7 +130,8 @@ def experiment(bwrate, range, max_speed):
 
 			line.append(pos)
 			lines.append(line)
-			time.sleep(0.1)
+			#time.sleep(0.1)
+			time.sleep(0.05)
 	except Exception as e:
 		print e
 	finally:

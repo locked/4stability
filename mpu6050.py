@@ -1744,6 +1744,7 @@ class MPU6050:
 				yaw = 0
 				pitch = 0
 				roll = 0
+				fifoCount = 0
 				if mpuIntStatus >= 2: # check for DMP data ready interrupt (this should happen frequently) 
 					# get current FIFO count
 					fifoCount = self.getFIFOCount()
@@ -1766,7 +1767,7 @@ class MPU6050:
 					yaw = ypr['yaw'] * 180 / math.pi
 					pitch = ypr['pitch'] * 180 / math.pi
 					roll = ypr['roll'] * 180 / math.pi
-				return (yaw, pitch, roll)
+				return (yaw, pitch, roll, fifoCount)
 
 
     def readall(self):
