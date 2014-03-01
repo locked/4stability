@@ -16,7 +16,7 @@ import mpu6050
 #parser.add_option("-p", "--p", dest="p", help="")
 #(options, args) = parser.parse_args()
 
-m = motor.Motor(debug=False)
+m = motor.Motor(0)
 dist = hcsr04.HCSR04()
 
 m.init()
