@@ -25,6 +25,7 @@ RAD_TO_DEG = 57.3
 DEG_TO_RAD = 1 / RAD_TO_DEG
 ACCEL_SF = 0.004
 
+#motor0 : N / motor1 : S
 if enable_motor:
 	motors = [motor.Motor(0, debug=False).init(), motor.Motor(1, debug=False).init()]
 
@@ -54,7 +55,6 @@ try:
 	previous_error = 0
 	integral = 0
 	derivative = 0
-	speed_percent = 10
 	diff_speed = 0
 	error = 0
 	dt_ms = 0
@@ -67,7 +67,9 @@ try:
 	target_deg = 0
 	start_time = time.time()*1000000 # en µs
 	lines = []
-	speed_percent = 18
+	avg_speed = 18
+	speed_percent = avg_speed
+	pitch_offset = 0
 	if enable_motor:
 		for m in motors:
 			m.set_speed(speed_percent/100.0)
@@ -130,12 +132,14 @@ try:
 			diff_speed = Kp * error + Ki * integral + Kd * derivative
 			previous_error = error
 		lastt = time.time()*1000
-
+		
+		pitch_offset = pitch_offset + diff_speed
+		
 		if enable_motor:
 			# First motor
-			motors[0].adjust_speed(diff_speed)
+			motors[0].set_speed(avg_speed + pitch_offset)
 			# Second motor
-			motors[1].adjust_speed(-diff_speed)
+			motors[1].set_speed(avg_speed - pitch_offset)
 
 		if enable_curse:
 			stdscr.addstr(2, 8, "ADXL:")
