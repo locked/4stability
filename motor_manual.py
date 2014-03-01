@@ -27,6 +27,8 @@ servoMotorStart = 245
 
 print "Init...",
 pwm.setPWM(0, 0, servoInit)
+time.sleep(4)
+pwm.setPWM(1, 0, servoInit)
 time.sleep(3)
 print "Done"
 
@@ -44,6 +46,7 @@ try:
     sys.stdout.write("\r%d" % pos)
     sys.stdout.flush()
     pwm.setPWM(0, 0, pos)
+    pwm.setPWM(1, 0, pos)
     #time.sleep(.1)
 except: pass
 finally:

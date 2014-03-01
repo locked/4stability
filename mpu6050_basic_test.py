@@ -8,7 +8,9 @@ import sys
 if __name__ == "__main__":
 	mpu = mpu6050.MPU6050()
 
-	mpu.init() 
+	#mpu.init() 
+	mpu.initialize()
+	mpu.setRate(9) # 1khz / (1 + 4) = 200 Hz [9 = 100 Hz]
 	while(True):
 		data = mpu.readall()
 		gyro = data['gyro_scaled']
