@@ -134,12 +134,14 @@ try:
 		lastt = time.time()*1000
 		
 		pitch_offset = pitch_offset + diff_speed
+		if pitch_offset > 5: pitch_offset=5
+		if pitch_offset < -5: pitch_offset=-5
 		
 		if enable_motor:
 			# First motor
-			motors[0].set_speed(avg_speed + pitch_offset)
+			motors[0].set_speed((avg_speed + pitch_offset)/100)
 			# Second motor
-			motors[1].set_speed(avg_speed - pitch_offset)
+			motors[1].set_speed((avg_speed - pitch_offset)/100)
 
 		if enable_curse:
 			stdscr.addstr(2, 8, "ADXL:")
