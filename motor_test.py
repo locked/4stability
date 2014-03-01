@@ -12,7 +12,7 @@ parser.add_option("-a", "--action", dest="action", help="reset/manual")
 (options, args) = parser.parse_args()
 
 
-m = motor.Motor()
+m = motor.Motor(0)
 
 
 if options.action == "reset":

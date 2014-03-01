@@ -15,7 +15,7 @@ parser.add_option("-p", "--p", dest="p", help="")
 (options, args) = parser.parse_args()
 
 
-m = motor.Motor(debug=False)
+m = motor.Motor(0, debug=False)
 accel = adxl345.ADXL345()
 dist = hcsr04.HCSR04()
 

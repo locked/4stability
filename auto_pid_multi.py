@@ -26,8 +26,7 @@ DEG_TO_RAD = 1 / RAD_TO_DEG
 ACCEL_SF = 0.004
 
 if enable_motor:
-	m = motor.Motor(0, debug=False)
-	m.init()
+	motors = [motor.Motor(0, debug=False).init(), motor.Motor(1, debug=False).init()]
 
 accel = adxl345.ADXL345(bwrate=adxl345.ADXL345.BW_RATE_25HZ, range=adxl345.ADXL345.RANGE_2G)
 dist  = hcsr04.HCSR04()
@@ -70,8 +69,9 @@ try:
 	lines = []
 	speed_percent = 18
 	if enable_motor:
-		pos = m.set_speed(speed_percent/100.0)
-	time.sleep(3)
+		for m in motors:
+			m.set_speed(speed_percent/100.0)
+	time.sleep(2)
 	
 	ys = []
 	#angle_rad = 0
@@ -131,14 +131,11 @@ try:
 			previous_error = error
 		lastt = time.time()*1000
 
-		speed_percent = speed_percent + diff_speed
-		if speed_percent > 25:
-			speed_percent = 25
-		if speed_percent < 10:
-			speed_percent = 10
-		pos = 0
 		if enable_motor:
-			pos = m.set_speed(speed_percent/100.0)
+			# First motor
+			motors[0].adjust_speed(diff_speed)
+			# Second motor
+			motors[1].adjust_speed(-diff_speed)
 
 		if enable_curse:
 			stdscr.addstr(2, 8, "ADXL:")
@@ -160,8 +157,11 @@ try:
 
 			stdscr.addstr(9, 9, "Distance:[%.1f]" % (distance))
 
-			stdscr.addstr(10, 8, "Motor:")
-			stdscr.addstr(12, 9, "[%.4f%% (%d)]" % (speed_percent, pos))
+			stdscr.addstr(10, 8, "Motors:")
+			i = 0
+			for m in motors:
+				i += 1
+				stdscr.addstr(10+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
 
 			stdscr.addstr(14, 8, "PID:")
 			stdscr.addstr(15, 9, "[DT:%.3f]" % (dt_ms))
@@ -182,7 +182,8 @@ try:
 		line.append(ts)
 		reltime = time.time()*1000000 - start_time
 		line.append(reltime)
-		line.append(pos)
+		for m in motors:
+			line.append(m.position)
 		line.append(axis['x'])
 		line.append(axis['y'])
 		line.append(axis['z'])
@@ -219,14 +220,19 @@ except Exception as e:
 finally:
 	print "Ending"
 	if enable_motor:
-		m.reset()
+		for m in motors:
+			m.reset()
 	if enable_curse:
 		try:
 			curses.endwin()
 		except: pass
 
 	# Save in CSV
-	header = ["datetime", "reltime", "speed", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "asin", "angle", "angle_rad", "error", "integral", "derivative", "Kp", "Ki", "Kd", "dt", "diff_speed"]
+	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "asin", "angle", "angle_rad", "error", "integral", "derivative", "Kp", "Ki", "Kd", "dt", "diff_speed"]
+	i = 0
+	for m in motors:
+		i += 1
+		header.append("Motor%d" % i)
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
 	with open('results/PID_%s_Kp%f_Ki%f_Kd%f.csv' % (ts, Kp, Ki, Kd), 'wb') as csvfile:
 		spamwriter = csv.writer(csvfile, delimiter='	', quotechar='"', quoting=csv.QUOTE_MINIMAL)
