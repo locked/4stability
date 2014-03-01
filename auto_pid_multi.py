@@ -56,6 +56,7 @@ try:
 	integral = 0
 	derivative = 0
 	diff_speed = 0
+	max_speed = 0.20
 	error = 0
 	dt_ms = 0
 	Kp = 0.001
@@ -139,9 +140,9 @@ try:
 		
 		if enable_motor:
 			# First motor
-			motors[0].set_speed((avg_speed + pitch_offset)/100)
+			motors[0].set_speed((avg_speed + pitch_offset)/100, 0, max_speed)
 			# Second motor
-			motors[1].set_speed((avg_speed - pitch_offset)/100)
+			motors[1].set_speed((avg_speed - pitch_offset)/100, 0, max_speed)
 
 		if enable_curse:
 			stdscr.addstr(2, 8, "ADXL:")
