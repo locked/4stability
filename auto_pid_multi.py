@@ -115,7 +115,8 @@ try:
 			# angle
 			p1 = 0.98
 			p2 = 1 - p1
-			atan_rad = math.atan(axis['y']/axis['z']) if axis['z'] <> 0 else 0
+			#atan_rad = math.atan(axis['y']/axis['z']) if axis['z'] <> 0 else 0
+			atan_rad = math.atan(axis['x']/axis['z']) if axis['z'] <> 0 else 0
 			# y = axis['y'] * ACCEL_SF
 			# if y>1: y = 1
 			# if y<-1: y = -1

@@ -25,32 +25,41 @@ servoMax = 610
 servoInit = 185
 servoMotorStart = 245
 
-print "Init...",
-pwm.setPWM(0, 0, servoInit)
-time.sleep(4)
-pwm.setPWM(1, 0, servoInit)
-time.sleep(3)
-print "Done"
+def init(pwm, servoInit, sleep=3):
+	print "Init...",
+	pwm.setPWM(0, 0, servoInit)
+	time.sleep(sleep)
+	pwm.setPWM(1, 0, servoInit)
+	time.sleep(sleep)
+	print "Done"
 
-pos = servoInit
+init(pwm, servoInit)
+
+pos1 = servoInit
+pos2 = servoInit
 try:
   while (True):
     try:
       c = sys.stdin.read(1)
     except IOError:
       c = ''
-    if c == "-":
-      pos -= 10
-    elif c == "+":
-      pos += 10
-    sys.stdout.write("\r%d" % pos)
+    if c == "a":
+      pos1 -= 10
+    elif c == "q":
+      pos1 += 10
+    if c == "s":
+      pos2 -= 10
+    elif c == "w":
+      pos2 += 10
+    sys.stdout.write("\r%d / %d" % (pos1, pos2))
     sys.stdout.flush()
-    pwm.setPWM(0, 0, pos)
-    pwm.setPWM(1, 0, pos)
+    pwm.setPWM(0, 0, pos1)
+    pwm.setPWM(1, 0, pos2)
     #time.sleep(.1)
 except: pass
 finally:
   # Reset terminal
   termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
   fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
+  init(pwm, servoInit, 0)
 
