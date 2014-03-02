@@ -28,6 +28,7 @@ class Motor():
 		self.pwm.setPWM(self.channel, 0, self.servoInit)
 		time.sleep(3)
 		if self.debug: print "Done"
+		return self
 
 	def reset(self):
 		if self.debug: print "Reset servo (minimum) %d" % self.servoMin
@@ -49,5 +50,5 @@ class Motor():
 
 	def adjust_speed(self, diff_speed):
 		self.speed_percent = self.speed_percent + diff_speed
-		self.set_speed(self.speed_percent/100.0, 0.1, 0.25)
+		self.set_speed(self.speed_percent/100.0, 0.1, 0.10)
 

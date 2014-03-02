@@ -66,9 +66,9 @@ try:
 	KiDiff = 0.00001
 	KdDiff = 0.0001
 	target_deg = 0
-	start_time = time.time()*1000000 # en µs
+	start_time = time.time()*1000000 # en us
 	lines = []
-	avg_speed = 18
+	avg_speed = 5
 	speed_percent = avg_speed
 	pitch_offset = 0
 	if enable_motor:
@@ -85,7 +85,7 @@ try:
 		distance = 0 #dist.measure()
 		axis = accel.getAxes()
 		data = mpu.readall()
-		gyro = data['gyro_scaled'] - gyro_init
+		gyro = data['gyro_scaled'] # - gyro_init
 		mpu_accel = data['accel_scaled']
 
 		#(axis['x'], axis['y'], axis['z'], fifocount) = mpu.getYPR()
@@ -217,7 +217,7 @@ try:
 		lines.append(line)
 
 		sleep_time = 0.05 - (time.time() - init_time)
-		if sleep_time < 0
+		if sleep_time < 0:
 			sleep_time = 0
 		time.sleep(sleep_time)
 except Exception as e:
