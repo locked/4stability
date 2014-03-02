@@ -190,8 +190,6 @@ try:
 		line.append(ts)
 		reltime = time.time()*1000000 - start_time
 		line.append(reltime)
-		for m in motors:
-			line.append(m.position)
 		line.append(axis['x'])
 		line.append(axis['y'])
 		line.append(axis['z'])
@@ -214,6 +212,8 @@ try:
 		line.append(Kd)
 		line.append(dt_ms)
 		line.append(diff_speed)
+		for m in motors:
+			line.append(m.position)
 		lines.append(line)
 
 		sleep_time = 0.05 - (time.time() - init_time)
