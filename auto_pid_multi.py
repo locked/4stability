@@ -18,17 +18,23 @@ parser = OptionParser()
 parser.add_option("-p", "--p", dest="p", help="")
 (options, args) = parser.parse_args()
 
+
 enable_motor = True
 enable_mpu_dmp = False
 enable_curse = True
 RAD_TO_DEG = 57.3
 DEG_TO_RAD = 1 / RAD_TO_DEG
 ACCEL_SF = 0.004
+base_sleep_time = 0.05
+
 
 #motor0 : N / motor1 : S
+print "Init motors...",
 if enable_motor:
 	motors = [motor.Motor(0, debug=False).init(), motor.Motor(1, debug=False).init()]
+print "Done"
 
+print "Init accels...",
 accel = adxl345.ADXL345(bwrate=adxl345.ADXL345.BW_RATE_25HZ, range=adxl345.ADXL345.RANGE_2G)
 dist  = hcsr04.HCSR04()
 mpu   = mpu6050.MPU6050()
@@ -36,21 +42,24 @@ mpu.initialize()
 mpu.setRate(39) # 1khz / (1 + 4) = 200 Hz [9 = 100 Hz]
 #mpu.dmpInitialize()
 #mpu.setDMPEnabled(True)
+print "Done"
 
 # Init gyro et angle
-data = mpu.readall()
-gyro_init = data['gyro_scaled']	
+print "Init gyro offset...",
+for i in ['x', 'y', 'z']: gyro_init[i] = 0
+count = 0
+max_count = 2 / base_sleep_time
+while count < max_count:
+	data = mpu.readall()
+	for i in ['x', 'y', 'z']: gyro_init[i] += data['gyro_scaled'][i]
+	count += 1
+	time.sleep(base_sleep_time)
+for i in ['x', 'y', 'z']: gyro_init[i] /= count
+print "Done. Iterations:[%d] gyro_init:[%.2f:%.2f:%.2f]" % (count, gyro_init['x'], gyro_init['y'], gyro_init['z'])
 axis = accel.getAxes()
 angle_rad = math.atan(axis['y']/axis['z']) if axis['z'] <> 0 else 0
 
-speed_percent = 0
-
-if enable_curse:
-	stdscr = curses.initscr()
-
 try:
-	if enable_curse:
-		stdscr.nodelay(1)
 	lastt = 0
 	previous_error = 0
 	integral = 0
@@ -72,10 +81,16 @@ try:
 	speed_percent = avg_speed
 	pitch_offset = 0
 	if enable_motor:
+		print "Setup initial motor speed to:[%.2f]" % float(speed_percent),
 		for m in motors:
 			m.set_speed(speed_percent/100.0)
-	time.sleep(2)
-	
+		time.sleep(2)
+		print "Done"
+
+	if enable_curse:
+		stdscr = curses.initscr()
+		stdscr.nodelay(1)
+
 	ys = []
 	#angle_rad = 0
 	axis = {}
@@ -85,7 +100,8 @@ try:
 		distance = 0 #dist.measure()
 		axis = accel.getAxes()
 		data = mpu.readall()
-		gyro = data['gyro_scaled'] # - gyro_init
+		gyro = data['gyro_scaled']
+		for i in ['x', 'y', 'z']: gyro[i] = gyro[i] - gyro_init[i] # Adjust gyro with initial offset
 		mpu_accel = data['accel_scaled']
 
 		#(axis['x'], axis['y'], axis['z'], fifocount) = mpu.getYPR()
@@ -134,11 +150,11 @@ try:
 			diff_speed = Kp * error + Ki * integral + Kd * derivative
 			previous_error = error
 		lastt = time.time()*1000
-		
+
 		pitch_offset = pitch_offset + diff_speed
-		if pitch_offset > 5: pitch_offset=5
-		if pitch_offset < -5: pitch_offset=-5
-		
+		if pitch_offset > 5: pitch_offset = 5
+		if pitch_offset < -5: pitch_offset = -5
+
 		if enable_motor:
 			# First motor
 			motors[0].set_speed((avg_speed + pitch_offset)/100, 0, max_speed)
@@ -166,10 +182,8 @@ try:
 			stdscr.addstr(9, 9, "Distance:[%.1f]" % (distance))
 
 			stdscr.addstr(10, 8, "Motors:")
-			i = 0
-			for m in motors:
-				i += 1
-				stdscr.addstr(10+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
+			for i, m in enumerate(motors):
+				stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
 
 			stdscr.addstr(14, 8, "PID:")
 			stdscr.addstr(15, 9, "[DT:%.3f]" % (dt_ms))
@@ -185,6 +199,7 @@ try:
 			if enable_mpu_dmp: stdscr.addstr(26, 9, "[fifo_count:%d]" % (fifocount))
 			stdscr.refresh()
 
+		# Data logging
 		line = []
 		ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
 		line.append(ts)
@@ -212,14 +227,13 @@ try:
 		line.append(Kd)
 		line.append(dt_ms)
 		line.append(diff_speed)
-		for m in motors:
-			line.append(m.position)
+		for m in motors: line.append(m.position)
 		lines.append(line)
 
-		sleep_time = 0.05 - (time.time() - init_time)
-		if sleep_time < 0:
-			sleep_time = 0
-		time.sleep(sleep_time)
+		# Sleep to reach target rate
+		sleep_time = base_sleep_time - (time.time() - init_time)
+		if sleep_time > 0:
+			time.sleep(sleep_time)
 except Exception as e:
 	if enable_curse:
 		curses.endwin()
@@ -237,9 +251,7 @@ finally:
 
 	# Save in CSV
 	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "asin", "angle", "angle_rad", "error", "integral", "derivative", "Kp", "Ki", "Kd", "dt", "diff_speed"]
-	i = 0
-	for m in motors:
-		i += 1
+	for i, m in enumerate(motors):
 		header.append("Motor%d" % i)
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
 	with open('results/PID_%s_Kp%f_Ki%f_Kd%f.csv' % (ts, Kp, Ki, Kd), 'wb') as csvfile:
