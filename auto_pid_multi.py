@@ -110,7 +110,7 @@ try:
 		p1 = 0
 		p2 = 0
 		if lastt > 0:
-			dt_ms = (time.time()*1000 - lastt) / 1000
+			dt_ms = (time.time()*1000 - lastt)
 
 			# angle
 			p1 = 0.98
