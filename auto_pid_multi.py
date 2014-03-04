@@ -46,11 +46,13 @@ print "Done"
 
 # Init gyro et angle
 print "Init gyro offset...",
+gyro_init = {}
 for i in ['x', 'y', 'z']: gyro_init[i] = 0
 count = 0
 max_count = 2 / base_sleep_time
 while count < max_count:
 	data = mpu.readall()
+	#print "gyro_init:[%.2f:%.2f:%.2f]" % (data['gyro_scaled']['x'], data['gyro_scaled']['y'], data['gyro_scaled']['z'])
 	for i in ['x', 'y', 'z']: gyro_init[i] += data['gyro_scaled'][i]
 	count += 1
 	time.sleep(base_sleep_time)
@@ -58,6 +60,7 @@ for i in ['x', 'y', 'z']: gyro_init[i] /= count
 print "Done. Iterations:[%d] gyro_init:[%.2f:%.2f:%.2f]" % (count, gyro_init['x'], gyro_init['y'], gyro_init['z'])
 axis = accel.getAxes()
 angle_rad = math.atan(axis['y']/axis['z']) if axis['z'] <> 0 else 0
+#sys.exit(0)
 
 try:
 	lastt = 0
@@ -71,13 +74,13 @@ try:
 	Kp = 0.001
 	Ki = 0
 	Kd = 0.002
-	KpDiff = 0.0001
+	KpDiff = 0.0005
 	KiDiff = 0.00001
-	KdDiff = 0.0001
+	KdDiff = 0.00001
 	target_deg = 0
 	start_time = time.time()*1000000 # en us
 	lines = []
-	avg_speed = 5
+	avg_speed = 3
 	speed_percent = avg_speed
 	pitch_offset = 0
 	if enable_motor:
@@ -138,7 +141,7 @@ try:
 			# if y<-1: y = -1
 			# asin_rad = -math.asin(y)
 			asin_rad  = 0
-			angle_rad = p1 * (angle_rad - (gyro['y'] * DEG_TO_RAD * (dt_ms / 1000))) + p2 * atan_rad
+			angle_rad = p1 * (angle_rad - (gyro['y'] * DEG_TO_RAD * (dt_ms/1000))) + p2 * atan_rad
 			angle_deg = angle_rad * RAD_TO_DEG
 
 			# PID
