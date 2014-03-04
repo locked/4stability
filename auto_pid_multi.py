@@ -36,10 +36,12 @@ print "Done"
 
 print "Init accels...",
 accel = adxl345.ADXL345(bwrate=adxl345.ADXL345.BW_RATE_25HZ, range=adxl345.ADXL345.RANGE_2G)
+accel_init = {'x':20, 'y':20, 'z':0}
 dist  = hcsr04.HCSR04()
 mpu   = mpu6050.MPU6050()
 mpu.initialize()
 mpu.setRate(39) # 1khz / (1 + 4) = 200 Hz [9 = 100 Hz]
+mpu_init = {'x':0.10, 'y':0, 'z':0}
 #mpu.dmpInitialize()
 #mpu.setDMPEnabled(True)
 print "Done"
@@ -87,7 +89,7 @@ try:
 		print "Setup initial motor speed to:[%.2f]" % float(speed_percent),
 		for m in motors:
 			m.set_speed(speed_percent/100.0)
-		time.sleep(2)
+		time.sleep(1)
 		print "Done"
 
 	if enable_curse:
@@ -102,13 +104,12 @@ try:
 		
 		distance = 0 #dist.measure()
 		axis = accel.getAxes()
-		axis['x'] = axis['x'] - 20;
-		axis['y'] = axis['y'] - 20;
+		for i in ['x', 'y', 'z']: axis[i] -= accel_init[i]
 		data = mpu.readall()
 		gyro = data['gyro_scaled']
-		for i in ['x', 'y', 'z']: gyro[i] = gyro[i] - gyro_init[i] # Adjust gyro with initial offset
+		for i in ['x', 'y', 'z']: gyro[i] -= gyro_init[i] # Adjust gyro with initial offset
 		mpu_accel = data['accel_scaled']
-		mpu_accel['x'] = mpu_accel['x'] - 0.10
+		for i in ['x', 'y', 'z']: mpu_accel[i] -= mpu_init[i]
 
 		#(axis['x'], axis['y'], axis['z'], fifocount) = mpu.getYPR()
 		#ys.append(axis['y'])
