@@ -106,6 +106,7 @@ try:
 		gyro = data['gyro_scaled']
 		for i in ['x', 'y', 'z']: gyro[i] = gyro[i] - gyro_init[i] # Adjust gyro with initial offset
 		mpu_accel = data['accel_scaled']
+		mpu_accel['x'] = mpu_accel['x'] - 0.10
 
 		#(axis['x'], axis['y'], axis['z'], fifocount) = mpu.getYPR()
 		#ys.append(axis['y'])
