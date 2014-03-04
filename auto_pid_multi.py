@@ -102,6 +102,8 @@ try:
 		
 		distance = 0 #dist.measure()
 		axis = accel.getAxes()
+		axis['x'] = axis['x'] - 20;
+		axis['y'] = axis['y'] - 20;
 		data = mpu.readall()
 		gyro = data['gyro_scaled']
 		for i in ['x', 'y', 'z']: gyro[i] = gyro[i] - gyro_init[i] # Adjust gyro with initial offset
