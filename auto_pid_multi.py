@@ -71,7 +71,7 @@ try:
 	integral = 0
 	derivative = 0
 	diff_speed = 0
-	max_speed = 0.20
+	max_speed = 0.25
 	error = 0
 	dt_ms = 0
 	Kp = 0.005
@@ -83,7 +83,7 @@ try:
 	target_deg = 0
 	start_time = time.time()*1000000 # en us
 	lines = []
-	avg_speed = 3
+	avg_speed = 10
 	speed_percent = avg_speed
 	pitch_offset = 0
 	if enable_motor:
