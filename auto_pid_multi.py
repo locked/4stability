@@ -73,9 +73,9 @@ try:
 	max_speed = 0.20
 	error = 0
 	dt_ms = 0
-	Kp = 0.001
+	Kp = 0.005
 	Ki = 0
-	Kd = 0.002
+	Kd = 0.00
 	KpDiff = 0.0005
 	KiDiff = 0.00001
 	KdDiff = 0.00001
