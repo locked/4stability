@@ -71,10 +71,10 @@ try:
 	integral = 0
 	derivative = 0
 	diff_speed = 0
-	max_speed = 0.25
+	max_speed = 0.20
 	error = 0
 	dt_ms = 0
-	Kp = 0.005
+	Kp = 0.0005
 	Ki = 0
 	Kd = 0.00
 	KpDiff = 0.0005
@@ -83,7 +83,8 @@ try:
 	target_deg = 0
 	start_time = time.time()*1000000 # en us
 	lines = []
-	avg_speed = 10
+	pid_output = 0
+	avg_speed = 6
 	speed_percent = avg_speed
 	pitch_offset = 0
 	if enable_motor:
@@ -155,11 +156,13 @@ try:
 			derivative = gyro['y']
 			#derivative = (error - previous_error)/dt_ms
 			#speed_percent = Kp * error + Ki * integral + Kd * derivative
-			diff_speed = Kp * error + Ki * integral + Kd * derivative
+			pid_output = Kp * error + Ki * integral + Kd * derivative
+			#diff_speed = pid_output
 			previous_error = error
 		lastt = time.time()*1000
 
-		pitch_offset = pitch_offset + diff_speed
+		pitch_offset = pid_output
+		#pitch_offset = pitch_offset + diff_speed
 		if pitch_offset > 5: pitch_offset = 5
 		if pitch_offset < -5: pitch_offset = -5
 
