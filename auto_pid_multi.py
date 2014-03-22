@@ -41,7 +41,8 @@ dist  = hcsr04.HCSR04()
 mpu   = mpu6050.MPU6050()
 mpu.initialize()
 mpu.setRate(39) # 1khz / (1 + 4) = 200 Hz [9 = 100 Hz]
-mpu_init = {'x':0.10, 'y':0, 'z':0}
+#mpu_init = {'x':0.10, 'y':0, 'z':0}
+mpu_init = {'x':0.07, 'y':0.01, 'z':0}
 #mpu.dmpInitialize()
 #mpu.setDMPEnabled(True)
 print "Done"
