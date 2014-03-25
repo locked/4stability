@@ -27,6 +27,8 @@ DEG_TO_RAD = 1 / RAD_TO_DEG
 ACCEL_SF = 0.004
 base_sleep_time = 0.05
 
+BALANCE_PITCH = 0
+SPEED_TO_FORCE = 1
 
 #motor0 : N / motor1 : S
 print "Init motors...",
@@ -67,16 +69,25 @@ angle_rad = math.atan(axis['y']/axis['z']) if axis['z'] <> 0 else 0
 
 try:
 	lastt = 0
-	previous_error = 0
+	previous_error2 = 0
 	integral = 0
 	derivative = 0
+	integral2 = 0
+	derivative2 = 0
+	
 	diff_speed = 0
 	max_speed = 0.20
 	error = 0
 	dt_ms = 0
+	
 	Kp = 0.0005
 	Ki = 0
 	Kd = 0.00
+	
+	Kp2 = 0.0005
+	Ki2 = 0
+	Kd2 = 0.00
+	
 	KpDiff = 0.0005
 	KiDiff = 0.00001
 	KdDiff = 0.00001
@@ -128,10 +139,16 @@ try:
 		if c == 's': Ki = Ki - KiDiff if Ki - KiDiff >= 0 else 0
 		if c == 'e': Kd = Kd + KdDiff
 		if c == 'd': Kd = Kd - KdDiff if Kd - KdDiff >= 0 else 0
-
+		if c == 'r': Kp2 = Kp2 + KpDiff
+		if c == 'f': Kp2 = Kp2 - KpDiff if Kp2 - KpDiff >= 0 else 0
+		if c == 't': Ki2 = Ki2 + KiDiff
+		if c == 'g': Ki2 = Ki2 - KiDiff if Ki2 - KiDiff >= 0 else 0
+		if c == 'y': Kd2 = Kd2 + KdDiff
+		if c == 'h': Kd2 = Kd2 - KdDiff if Kd2 - KdDiff >= 0 else 0
+		
 		angle_deg = 0
 		atan_rad  = 0
-		asin_rad  = 0
+
 		p1 = 0
 		p2 = 0
 		if lastt > 0:
@@ -142,27 +159,39 @@ try:
 			p2 = 1 - p1
 			#atan_rad = math.atan(axis['y']/axis['z']) if axis['z'] <> 0 else 0
 			atan_rad = math.atan(axis['x']/axis['z']) if axis['z'] <> 0 else 0
-			# y = axis['y'] * ACCEL_SF
-			# if y>1: y = 1
-			# if y<-1: y = -1
-			# asin_rad = -math.asin(y)
-			asin_rad  = 0
 			angle_rad = p1 * (angle_rad - (gyro['y'] * DEG_TO_RAD * (dt_ms/1000))) + p2 * atan_rad
 			angle_deg = angle_rad * RAD_TO_DEG
-
-			# PID
+			
+			
+			# PID1 : get target angle rate
 			error = target_deg - angle_deg
-			integral = integral + error * dt_ms
+			integral += error * dt_ms
 			derivative = gyro['y']
-			#derivative = (error - previous_error)/dt_ms
-			#speed_percent = Kp * error + Ki * integral + Kd * derivative
 			pid_output = Kp * error + Ki * integral + Kd * derivative
-			#diff_speed = pid_output
-			previous_error = error
+			
+			target_angleRate = pid_output
+			actual_angleRate = gyro['y']
+
+			# PID2 : get pitch_offset
+			error2 = target_angleRate - actual_angleRate
+			integral2 += error2 * dt_ms
+			derivative2 = error2 - previous_error2
+			pid_output2 = Kp2 * error2 + Ki2 * integral2 + Kd2 * derivative2
+			previous_error2 = error2
+			
+			pitch_offset_force = pid_output2
+			
+			# Pseudo-Physical Model to get actual pitch_offset
+			
+			pitch_offset_speedRaw = pitch_offset_force / SPEED_TO_FORCE
+			
+			# Correct unbalanced CoG
+			pitch_offset = pitch_offset_speedRaw + BALANCE_PITCH
+			
+			
+			
 		lastt = time.time()*1000
 
-		pitch_offset = pid_output
-		#pitch_offset = pitch_offset + diff_speed
 		if pitch_offset > 5: pitch_offset = 5
 		if pitch_offset < -5: pitch_offset = -5
 
@@ -227,17 +256,26 @@ try:
 		line.append(mpu_accel['z'])
 		line.append(round(distance,2))
 		line.append(round(atan_rad * RAD_TO_DEG,2))
-		line.append(round(asin_rad * RAD_TO_DEG,2))
 		line.append(angle_deg)
-		line.append(angle_rad)
+		
 		line.append(error)
 		line.append(integral)
 		line.append(derivative)
 		line.append(Kp)
 		line.append(Ki)
 		line.append(Kd)
+		line.append(target_angleRate)
+		
+		line.append(error2)
+		line.append(integral2)
+		line.append(derivative2)
+		line.append(Kp2)
+		line.append(Ki2)
+		line.append(Kd2)
+		line.append(pitch_offset_force)
+		
 		line.append(dt_ms)
-		line.append(diff_speed)
+
 		for m in motors: line.append(m.position)
 		lines.append(line)
 
@@ -261,7 +299,7 @@ finally:
 		except: pass
 
 	# Save in CSV
-	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "asin", "angle", "angle_rad", "error", "integral", "derivative", "Kp", "Ki", "Kd", "dt", "diff_speed"]
+	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "angle", "error", "integral", "derivative", "Kp", "Ki", "Kd", "target_angleRate2", "error2", "integral2", "derivative2", "Kp2", "Ki2", "Kd2", "pitch_offset_force", "dt"]
 	for i, m in enumerate(motors):
 		header.append("Motor%d" % i)
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
