@@ -78,6 +78,7 @@ try:
 	diff_speed = 0
 	max_speed = 0.20
 	error = 0
+	error2 = 0
 	dt_ms = 0
 	
 	Kp = 0.0005
@@ -151,6 +152,8 @@ try:
 
 		p1 = 0
 		p2 = 0
+		target_angleRate = 0
+		pitch_offset_force = 0
 		if lastt > 0:
 			dt_ms = (time.time()*1000 - lastt)
 
@@ -227,7 +230,7 @@ try:
 
 			stdscr.addstr(14, 8, "PID:")
 			stdscr.addstr(15, 9, "[DT:%.3f]" % (dt_ms))
-			stdscr.addstr(16, 9, "[Erreur:%.3f] [Avgy:%.3f] [Atan:%.3f] [Asin:%.3f] [P1:%.3f] [P2:%.3f]" % (error, angle_rad, atan_rad, asin_rad, p1, p2))
+			stdscr.addstr(16, 9, "[Erreur:%.3f] [Avgy:%.3f] [Atan:%.3f] [P1:%.3f] [P2:%.3f]" % (error, angle_rad, atan_rad, p1, p2))
 			stdscr.addstr(17, 9, "[Integral:%.3f Derivative:%.3f]" % (integral, derivative))
 			stdscr.addstr(18, 9, "[DIFFSPEED:%.3f]" % (diff_speed))
 			stdscr.addstr(19, 9, "[Kp*E:%.6f]" % (Kp * error))
