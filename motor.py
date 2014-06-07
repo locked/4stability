@@ -9,6 +9,7 @@ class Motor():
 	servoMotorStart = 220
 
 	speed_percent = 0
+	asked_speed_percent = 0
 	position = 0
 
 	pwm = None
@@ -35,6 +36,7 @@ class Motor():
 		self.pwm.setPWM(self.channel, 0, self.servoMin)
 
 	def set_speed(self, percent, min=0, max=1):
+		self.asked_speed_percent = percent
 		if percent > 1 or percent < 0:
 			if self.debug: print "Invalid value, must be between 0 and 1"
 		if percent > max:
@@ -44,8 +46,8 @@ class Motor():
 		servo_pos = int((self.servoMax - self.servoMotorStart) * percent + self.servoMotorStart)
 		#print "Set to %.2f%% (%d)" % (percent, servo_pos)
 		self.pwm.setPWM(self.channel, 0, servo_pos)
-		self.speed_percent = percent
 		self.position = servo_pos
+		self.speed_percent = percent
 		return servo_pos
 
 	def adjust_speed(self, diff_speed):

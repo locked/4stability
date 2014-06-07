@@ -1,0 +1,1 @@
+datetime	reltime	adxlx	adxly	adxlz	gyrox	gyroy	gyroz	mpu_accelx	mpu_accely	mpu_accelz	distance	atan	angle	error	integral	derivative	Kp	Ki	Kd	target_angleRate2	error2	integral2	derivative2	Kp2	Ki2	Kd2	pitch_offset_force	dt	Motor0	Motor1

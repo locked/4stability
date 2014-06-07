@@ -14,6 +14,14 @@ import hcsr04
 import mpu6050
 
 
+
+def curses_bar(stdscr, y, x, percent, val):
+	max_rel = 50
+	for i in range(0, max_rel):
+		stdscr.addstr(y, x+i, "X" if percent >= ((max_rel/100.0) * 100.0) else ".")
+	stdscr.addstr(y, x+i, "  " + val)
+
+
 parser = OptionParser()
 parser.add_option("-p", "--p", dest="p", help="")
 (options, args) = parser.parse_args()
@@ -81,7 +89,7 @@ try:
 	error2 = 0
 	dt_ms = 0
 	
-	Kp = 0.0005
+	Kp = 0.5
 	Ki = 0
 	Kd = 0.00
 	
@@ -89,14 +97,17 @@ try:
 	Ki2 = 0
 	Kd2 = 0.00
 	
-	KpDiff = 0.0005
+	KpDiff = 0.005
 	KiDiff = 0.00001
 	KdDiff = 0.00001
 	target_deg = 0
 	start_time = time.time()*1000000 # en us
 	lines = []
 	pid_output = 0
+	pid_output2 = 0
 	avg_speed = 6
+	motor1_speed = 0
+	motor2_speed = 0
 	speed_percent = avg_speed
 	pitch_offset = 0
 	if enable_motor:
@@ -189,48 +200,54 @@ try:
 			pitch_offset_speedRaw = pitch_offset_force / SPEED_TO_FORCE
 			
 			# Correct unbalanced CoG
-			pitch_offset = pitch_offset_speedRaw + BALANCE_PITCH
-			
-			
-			
+			pitch_offset = pitch_offset_speedRaw # + BALANCE_PITCH
+
+
+
 		lastt = time.time()*1000
 
-		if pitch_offset > 5: pitch_offset = 5
-		if pitch_offset < -5: pitch_offset = -5
+		#if pitch_offset > 5:
+		#	pitch_offset = 5
+		#if pitch_offset < -5:
+		#	pitch_offset = -5
 
 		if enable_motor:
 			# First motor
-			motors[0].set_speed((avg_speed + pitch_offset)/100, 0, max_speed)
+			motor1_speed = (avg_speed - pitch_offset)/100.0
+			motors[0].set_speed(motor1_speed, 0, max_speed)
 			# Second motor
-			motors[1].set_speed((avg_speed - pitch_offset)/100, 0, max_speed)
+			motor2_speed = ((avg_speed + pitch_offset)/100.0) * 1.15 # - 0.012
+			motors[1].set_speed(motor2_speed, 0, max_speed)
 
 		if enable_curse:
 			stdscr.addstr(2, 8, "ADXL:")
-			stdscr.addstr(4, 9, "[                             ]")
-			stdscr.addstr(4, 10, "x:%.2f" % axis['x'])
-			stdscr.addstr(4, 20, "y:%.2f" % axis['y'])
-			stdscr.addstr(4, 30, "z:%.2f" % axis['z'])
+			stdscr.addstr(3, 9, "[                             ]")
+			stdscr.addstr(3, 10, "x:%.2f" % axis['x'])
+			stdscr.addstr(3, 20, "y:%.2f" % axis['y'])
+			stdscr.addstr(3, 30, "z:%.2f" % axis['z'])
 
-			stdscr.addstr(5, 8, "MPU gyro + accel:")
-			stdscr.addstr(6, 9, "[                             ]")
-			stdscr.addstr(6, 10, "x:%.2f" % gyro['x'])
-			stdscr.addstr(6, 20, "y:%.2f" % gyro['y'])
-			stdscr.addstr(6, 30, "z:%.2f" % gyro['z'])
+			stdscr.addstr(4, 8, "MPU gyro:")
+			stdscr.addstr(5, 9, "[                             ]")
+			stdscr.addstr(5, 10, "x:%.2f" % gyro['x'])
+			stdscr.addstr(5, 20, "y:%.2f" % gyro['y'])
+			stdscr.addstr(5, 30, "z:%.2f" % gyro['z'])
 
+			stdscr.addstr(6, 8, "MPU accel:")
 			stdscr.addstr(7, 9, "[                             ]")
 			stdscr.addstr(7, 10, "x:%.2f" % mpu_accel['x'])
 			stdscr.addstr(7, 20, "y:%.2f" % mpu_accel['y'])
 			stdscr.addstr(7, 30, "z:%.2f" % mpu_accel['z'])
 
-			stdscr.addstr(9, 9, "Distance:[%.1f]" % (distance))
+			#stdscr.addstr(9, 9, "Distance:[%.1f]" % (distance))
 
 			stdscr.addstr(10, 8, "Motors:")
 			for i, m in enumerate(motors):
-				stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
+				#stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
+				curses_bar(stdscr, 11+i, 9, m.asked_speed_percent, "[%.4f%% / %.4f%% (%d)]" % (m.asked_speed_percent, m.speed_percent, m.position)) #stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
 
 			stdscr.addstr(14, 8, "PID:")
 			stdscr.addstr(15, 9, "[DT:%.3f]" % (dt_ms))
-			stdscr.addstr(16, 9, "[Erreur:%.3f] [Avgy:%.3f] [Atan:%.3f] [P1:%.3f] [P2:%.3f]" % (error, angle_rad, atan_rad, p1, p2))
+			stdscr.addstr(16, 9, "[Error:%.3f] [Error2:%.3f] [angle_rad:%.3f] [atan_rad:%.3f]" % (error, error2, angle_rad, atan_rad))
 			stdscr.addstr(17, 9, "[Integral:%.3f Derivative:%.3f]" % (integral, derivative))
 			stdscr.addstr(18, 9, "[DIFFSPEED:%.3f]" % (diff_speed))
 			stdscr.addstr(19, 9, "[Kp*E:%.6f]" % (Kp * error))
@@ -239,6 +256,15 @@ try:
 			stdscr.addstr(22, 9, "[Kp:%.6f]" % (Kp))
 			stdscr.addstr(23, 9, "[Ki:%.6f]" % (Ki))
 			stdscr.addstr(24, 9, "[Kd:%.6f]" % (Kd))
+			stdscr.addstr(25, 9, "[PID OUTPUT:%.6f]" % (pid_output))
+			stdscr.addstr(26, 9, "[Kp2*E:%.6f]" % (Kp2 * error2))
+			stdscr.addstr(27, 9, "[Ki2*E:%.6f]" % (Ki2 * integral2))
+			stdscr.addstr(28, 9, "[Kd2*E:%.6f]" % (Kd2 * derivative2))
+			stdscr.addstr(29, 9, "[Kp2:%.6f]" % (Kp2))
+			stdscr.addstr(30, 9, "[Ki2:%.6f]" % (Ki2))
+			stdscr.addstr(31, 9, "[Kd2:%.6f]" % (Kd2))
+			stdscr.addstr(32, 9, "[PID OUTPUT2:%.6f]" % (pid_output2))
+			stdscr.addstr(33, 9, "[pitch_offset:%.6f]" % (pitch_offset))
 			if enable_mpu_dmp: stdscr.addstr(26, 9, "[fifo_count:%d]" % (fifocount))
 			stdscr.refresh()
 
@@ -267,6 +293,7 @@ try:
 		line.append(Kp)
 		line.append(Ki)
 		line.append(Kd)
+		line.append(pid_output)
 		line.append(target_angleRate)
 		
 		line.append(error2)
@@ -275,11 +302,18 @@ try:
 		line.append(Kp2)
 		line.append(Ki2)
 		line.append(Kd2)
+		line.append(pid_output2)
+
 		line.append(pitch_offset_force)
+		line.append(pitch_offset)
 		
 		line.append(dt_ms)
 
 		for m in motors: line.append(m.position)
+		
+		line.append(motor1_speed)
+		line.append(motor2_speed)
+
 		lines.append(line)
 
 		# Sleep to reach target rate
@@ -302,7 +336,7 @@ finally:
 		except: pass
 
 	# Save in CSV
-	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "angle", "error", "integral", "derivative", "Kp", "Ki", "Kd", "target_angleRate2", "error2", "integral2", "derivative2", "Kp2", "Ki2", "Kd2", "pitch_offset_force", "dt"]
+	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "angle", "error", "integral", "derivative", "Kp", "Ki", "Kd", "pid_output", "target_angleRate2", "error2", "integral2", "derivative2", "Kp2", "Ki2", "Kd2", "pid_output2", "pitch_offset_force", "pitch_offset", "dt", "m1_pos", "m2_pos", "m1_percent", "m2_percent"]
 	for i, m in enumerate(motors):
 		header.append("Motor%d" % i)
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
