@@ -89,12 +89,12 @@ try:
 	error2 = 0
 	dt_ms = 0
 	
-	Kp = 0.5
+	Kp = 0.6
 	Ki = 0
 	Kd = 0.00
 	
-	Kp2 = 0.0005
-	Ki2 = 0
+	Kp2 = 0.08
+	Ki2 = 0.00001
 	Kd2 = 0.00
 	
 	KpDiff = 0.005
@@ -180,6 +180,9 @@ try:
 			# PID1 : get target angle rate
 			error = target_deg - angle_deg
 			integral += error * dt_ms
+			max_integral = 1000
+			if integral > max_integral: integral = max_integral
+			if integral > (0 - max_integral): integral = (0 - max_integral)
 			derivative = gyro['y']
 			pid_output = Kp * error + Ki * integral + Kd * derivative
 			
@@ -189,6 +192,8 @@ try:
 			# PID2 : get pitch_offset
 			error2 = target_angleRate - actual_angleRate
 			integral2 += error2 * dt_ms
+			if integral2 > max_integral: integral2 = max_integral
+			if integral2 > (0 - max_integral): integral2 = (0 - max_integral)
 			derivative2 = error2 - previous_error2
 			pid_output2 = Kp2 * error2 + Ki2 * integral2 + Kd2 * derivative2
 			previous_error2 = error2
