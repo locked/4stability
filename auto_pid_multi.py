@@ -18,8 +18,15 @@ import mpu6050
 def curses_bar(stdscr, y, x, percent, val):
 	max_rel = 50
 	for i in range(0, max_rel):
-		stdscr.addstr(y, x+i, "X" if percent >= ((max_rel/100.0) * 100.0) else ".")
-	stdscr.addstr(y, x+i, "  " + val)
+		c = "X" if percent >= (max_rel/100.0) else "."
+		try:
+			stdscr.addstr(int(y), int(x + i), c)
+		except:
+			pass
+	try:
+		stdscr.addstr(y, int(x + i), "  %s" % val)
+	except:
+		pass
 
 
 parser = OptionParser()
@@ -182,7 +189,7 @@ try:
 			integral += error * dt_ms
 			max_integral = 1000
 			if integral > max_integral: integral = max_integral
-			if integral > (0 - max_integral): integral = (0 - max_integral)
+			if integral < (0 - max_integral): integral = (0 - max_integral)
 			derivative = gyro['y']
 			pid_output = Kp * error + Ki * integral + Kd * derivative
 			
@@ -193,7 +200,7 @@ try:
 			error2 = target_angleRate - actual_angleRate
 			integral2 += error2 * dt_ms
 			if integral2 > max_integral: integral2 = max_integral
-			if integral2 > (0 - max_integral): integral2 = (0 - max_integral)
+			if integral2 < (0 - max_integral): integral2 = (0 - max_integral)
 			derivative2 = error2 - previous_error2
 			pid_output2 = Kp2 * error2 + Ki2 * integral2 + Kd2 * derivative2
 			previous_error2 = error2
@@ -248,7 +255,7 @@ try:
 			stdscr.addstr(10, 8, "Motors:")
 			for i, m in enumerate(motors):
 				#stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
-				curses_bar(stdscr, 11+i, 9, m.asked_speed_percent*100, "[%.4f%% / %.4f%% (%d)]" % (m.asked_speed_percent, m.speed_percent, m.position)) #stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
+				curses_bar(stdscr, 11+i, 9, m.asked_speed_percent, "[%.4f%% / %.4f%% (%d)]" % (m.asked_speed_percent, m.speed_percent, m.position)) #stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
 
 			stdscr.addstr(14, 8, "PID:")
 			stdscr.addstr(15, 9, "[DT:%.3f]" % (dt_ms))
