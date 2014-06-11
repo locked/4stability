@@ -33,7 +33,7 @@ enable_curse = True
 RAD_TO_DEG = 57.3
 DEG_TO_RAD = 1 / RAD_TO_DEG
 ACCEL_SF = 0.004
-base_sleep_time = 0.05
+base_sleep_time = 0.025
 
 BALANCE_PITCH = 0
 SPEED_TO_FORCE = 1
