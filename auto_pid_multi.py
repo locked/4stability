@@ -243,7 +243,7 @@ try:
 			stdscr.addstr(10, 8, "Motors:")
 			for i, m in enumerate(motors):
 				#stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
-				curses_bar(stdscr, 11+i, 9, m.asked_speed_percent, "[%.4f%% / %.4f%% (%d)]" % (m.asked_speed_percent, m.speed_percent, m.position)) #stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
+				curses_bar(stdscr, 11+i, 9, m.asked_speed_percent*100, "[%.4f%% / %.4f%% (%d)]" % (m.asked_speed_percent, m.speed_percent, m.position)) #stdscr.addstr(11+i, 9, "[%.4f%% (%d)]" % (m.speed_percent, m.position))
 
 			stdscr.addstr(14, 8, "PID:")
 			stdscr.addstr(15, 9, "[DT:%.3f]" % (dt_ms))
