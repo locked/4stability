@@ -135,8 +135,9 @@ try:
 		init_time = time.time()
 		
 		distance = 0 #dist.measure()
-		axis = accel.getAxes()
-		for i in ['x', 'y', 'z']: axis[i] -= accel_init[i]
+		#axis = accel.getAxes()
+		#for i in ['x', 'y', 'z']: axis[i] -= accel_init[i]
+		axis = {'x': 0, 'y': 0, 'z': 0}
 		data = mpu.readall()
 		gyro = data['gyro_scaled']
 		for i in ['x', 'y', 'z']: gyro[i] -= gyro_init[i] # Adjust gyro with initial offset
@@ -181,8 +182,8 @@ try:
 			# angle
 			p1 = 0.98
 			p2 = 1 - p1
-			#atan_rad = math.atan(axis['y']/axis['z']) if axis['z'] <> 0 else 0
-			atan_rad = math.atan(axis['x']/axis['z']) if axis['z'] <> 0 else 0
+			# atan_rad = math.atan(axis['x']/axis['z']) if axis['z'] <> 0 else 0  # ADXL
+			atan_rad = math.atan(mpu_accel['x']*200.0 / mpu_accel['z']*200.0) if mpu_accel['z'] <> 0 else 0
 			angle_rad = p1 * (angle_rad - (gyro['y'] * DEG_TO_RAD * (dt_ms/1000))) + p2 * atan_rad
 			angle_deg = angle_rad * RAD_TO_DEG
 			
