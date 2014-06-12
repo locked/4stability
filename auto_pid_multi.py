@@ -40,7 +40,7 @@ enable_curse = True
 RAD_TO_DEG = 57.3
 DEG_TO_RAD = 1 / RAD_TO_DEG
 ACCEL_SF = 0.004
-base_sleep_time = 0.025
+base_sleep_time = 0.01 #25
 
 BALANCE_PITCH = 0
 SPEED_TO_FORCE = 1
@@ -192,11 +192,24 @@ try:
 			if integral < (0 - max_integral): integral = (0 - max_integral)
 			derivative = gyro['y']
 			pid_output = Kp * error + Ki * integral + Kd * derivative
+			if pid_output > 60: pid_output = 60
+			if pid_output < 0: pid_output = 0
 			
 			target_angleRate = pid_output
 			actual_angleRate = gyro['y']
 
+			# Only ONE PID:
+			pitch_offset = pid_output
+
 			# PID2 : get pitch_offset
+			error2 = 0
+			integral2 = 0
+			derivative2 = 0
+			pid_output2 = 0
+			previous_error2 = 0
+			pitch_offset_force = 0
+			pitch_offset_speedRaw = 0
+			"""
 			error2 = target_angleRate - actual_angleRate
 			integral2 += error2 * dt_ms
 			if integral2 > max_integral: integral2 = max_integral
@@ -213,6 +226,7 @@ try:
 			
 			# Correct unbalanced CoG
 			pitch_offset = pitch_offset_speedRaw # + BALANCE_PITCH
+			"""
 
 
 
@@ -228,7 +242,7 @@ try:
 			motor1_speed = (avg_speed - pitch_offset)/100.0
 			motors[0].set_speed(motor1_speed, 0, max_speed)
 			# Second motor
-			motor2_speed = ((avg_speed + pitch_offset)/100.0) * 1.15 # - 0.012
+			motor2_speed = ((avg_speed + pitch_offset)/100.0) # * 1.15 # - 0.012
 			motors[1].set_speed(motor2_speed, 0, max_speed)
 
 		if enable_curse:
@@ -269,15 +283,15 @@ try:
 			stdscr.addstr(23, 9, "[Ki:%.6f]" % (Ki))
 			stdscr.addstr(24, 9, "[Kd:%.6f]" % (Kd))
 			stdscr.addstr(25, 9, "[PID OUTPUT:%.6f]" % (pid_output))
-			stdscr.addstr(26, 9, "[Kp2*E:%.6f]" % (Kp2 * error2))
-			stdscr.addstr(27, 9, "[Ki2*E:%.6f]" % (Ki2 * integral2))
-			stdscr.addstr(28, 9, "[Kd2*E:%.6f]" % (Kd2 * derivative2))
-			stdscr.addstr(29, 9, "[Kp2:%.6f]" % (Kp2))
-			stdscr.addstr(30, 9, "[Ki2:%.6f]" % (Ki2))
-			stdscr.addstr(31, 9, "[Kd2:%.6f]" % (Kd2))
-			stdscr.addstr(32, 9, "[PID OUTPUT2:%.6f]" % (pid_output2))
-			stdscr.addstr(33, 9, "[pitch_offset:%.6f]" % (pitch_offset))
-			if enable_mpu_dmp: stdscr.addstr(26, 9, "[fifo_count:%d]" % (fifocount))
+			#stdscr.addstr(26, 9, "[Kp2*E:%.6f]" % (Kp2 * error2))
+			#stdscr.addstr(27, 9, "[Ki2*E:%.6f]" % (Ki2 * integral2))
+			#stdscr.addstr(28, 9, "[Kd2*E:%.6f]" % (Kd2 * derivative2))
+			#stdscr.addstr(29, 9, "[Kp2:%.6f]" % (Kp2))
+			#stdscr.addstr(30, 9, "[Ki2:%.6f]" % (Ki2))
+			#stdscr.addstr(31, 9, "[Kd2:%.6f]" % (Kd2))
+			#stdscr.addstr(32, 9, "[PID OUTPUT2:%.6f]" % (pid_output2))
+			#stdscr.addstr(33, 9, "[pitch_offset:%.6f]" % (pitch_offset))
+			#if enable_mpu_dmp: stdscr.addstr(26, 9, "[fifo_count:%d]" % (fifocount))
 			stdscr.refresh()
 
 		# Data logging
