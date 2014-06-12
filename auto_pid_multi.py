@@ -96,9 +96,9 @@ try:
 	error2 = 0
 	dt_ms = 0
 	
-	Kp = 0.6
-	Ki = 0
-	Kd = 0.00
+	Kp = 0.080
+	Ki = 0.00001
+	Kd = 0.0
 	
 	Kp2 = 0.08
 	Ki2 = 0.00001
@@ -142,6 +142,7 @@ try:
 		for i in ['x', 'y', 'z']: gyro[i] -= gyro_init[i] # Adjust gyro with initial offset
 		mpu_accel = data['accel_scaled']
 		for i in ['x', 'y', 'z']: mpu_accel[i] -= mpu_init[i]
+		sensor_time = time.time()
 
 		#(axis['x'], axis['y'], axis['z'], fifocount) = mpu.getYPR()
 		#ys.append(axis['y'])
@@ -192,8 +193,8 @@ try:
 			if integral < (0 - max_integral): integral = (0 - max_integral)
 			derivative = gyro['y']
 			pid_output = Kp * error + Ki * integral + Kd * derivative
-			if pid_output > 60: pid_output = 60
-			if pid_output < 0: pid_output = 0
+			#if pid_output > 60: pid_output = 60
+			#if pid_output < 0: pid_output = 0
 			
 			target_angleRate = pid_output
 			actual_angleRate = gyro['y']
@@ -228,6 +229,7 @@ try:
 			pitch_offset = pitch_offset_speedRaw # + BALANCE_PITCH
 			"""
 
+		pid_time = time.time()
 
 
 		lastt = time.time()*1000
@@ -242,8 +244,9 @@ try:
 			motor1_speed = (avg_speed - pitch_offset)/100.0
 			motors[0].set_speed(motor1_speed, 0, max_speed)
 			# Second motor
-			motor2_speed = ((avg_speed + pitch_offset)/100.0) # * 1.15 # - 0.012
+			motor2_speed = ((avg_speed + pitch_offset)/100.0) * 1.15 # - 0.012
 			motors[1].set_speed(motor2_speed, 0, max_speed)
+		motor_time = time.time()
 
 		if enable_curse:
 			stdscr.addstr(2, 8, "ADXL:")
@@ -292,7 +295,8 @@ try:
 			#stdscr.addstr(32, 9, "[PID OUTPUT2:%.6f]" % (pid_output2))
 			#stdscr.addstr(33, 9, "[pitch_offset:%.6f]" % (pitch_offset))
 			#if enable_mpu_dmp: stdscr.addstr(26, 9, "[fifo_count:%d]" % (fifocount))
-			stdscr.refresh()
+			#stdscr.refresh()
+		curses_time = time.time()
 
 		# Data logging
 		line = []
@@ -300,15 +304,15 @@ try:
 		line.append(ts)
 		reltime = time.time()*1000000 - start_time
 		line.append(reltime)
-		line.append(axis['x'])
-		line.append(axis['y'])
-		line.append(axis['z'])
-		line.append(gyro['x'])
-		line.append(gyro['y'])
-		line.append(gyro['z'])
-		line.append(mpu_accel['x'])
-		line.append(mpu_accel['y'])
-		line.append(mpu_accel['z'])
+		line.append(round(axis['x'],3))
+		line.append(round(axis['y'],3))
+		line.append(round(axis['z'],3))
+		line.append(round(gyro['x'],3))
+		line.append(round(gyro['y'],3))
+		line.append(round(gyro['z'],3))
+		line.append(round(mpu_accel['x'],3))
+		line.append(round(mpu_accel['y'],3))
+		line.append(round(mpu_accel['z'],3))
 		line.append(round(distance,2))
 		line.append(round(atan_rad * RAD_TO_DEG,2))
 		line.append(angle_deg)
@@ -316,34 +320,40 @@ try:
 		line.append(error)
 		line.append(integral)
 		line.append(derivative)
-		line.append(Kp)
-		line.append(Ki)
-		line.append(Kd)
-		line.append(pid_output)
-		line.append(target_angleRate)
+		line.append(round(Kp,3))
+		line.append(round(Ki,3))
+		line.append(round(Kd,3))
+		line.append(round(pid_output,3))
+		line.append(round(target_angleRate,3))
 		
 		line.append(error2)
 		line.append(integral2)
 		line.append(derivative2)
-		line.append(Kp2)
-		line.append(Ki2)
-		line.append(Kd2)
-		line.append(pid_output2)
+		line.append(round(Kp2,3))
+		line.append(round(Ki2,3))
+		line.append(round(Kd2,3))
+		line.append(round(pid_output2,3))
 
-		line.append(pitch_offset_force)
-		line.append(pitch_offset)
+		line.append(round(pitch_offset_force,3))
+		line.append(round(pitch_offset,3))
 		
-		line.append(dt_ms)
+		line.append(round(dt_ms,3))
 
-		for m in motors: line.append(m.position)
+		for m in motors: line.append(round(m.position,3))
 		
-		line.append(motor1_speed)
-		line.append(motor2_speed)
-
-		lines.append(line)
+		line.append(round(motor1_speed,3))
+		line.append(round(motor2_speed,3))
 
 		# Sleep to reach target rate
 		sleep_time = base_sleep_time - (time.time() - init_time)
+		line.append(round(sleep_time, 4))
+		line.append(round(sensor_time - init_time, 4))
+		line.append(round(pid_time - sensor_time, 4))
+		line.append(round(motor_time - pid_time, 4))
+		line.append(round(curses_time - motor_time, 4))
+
+		lines.append(line)
+
 		if sleep_time > 0:
 			time.sleep(sleep_time)
 except Exception as e:
@@ -365,6 +375,7 @@ finally:
 	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "angle", "error", "integral", "derivative", "Kp", "Ki", "Kd", "pid_output", "target_angleRate2", "error2", "integral2", "derivative2", "Kp2", "Ki2", "Kd2", "pid_output2", "pitch_offset_force", "pitch_offset", "dt", "m1_pos", "m2_pos", "m1_percent", "m2_percent"]
 	for i, m in enumerate(motors):
 		header.append("Motor%d" % i)
+	header+= ["sleep_time", "sensor_time", "pid_time", "motors_time", "curses_time"]
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
 	with open('results/PID_%s_Kp%f_Ki%f_Kd%f.csv' % (ts, Kp, Ki, Kd), 'wb') as csvfile:
 		spamwriter = csv.writer(csvfile, delimiter='	', quotechar='"', quoting=csv.QUOTE_MINIMAL)
