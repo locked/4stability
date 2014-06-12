@@ -373,8 +373,8 @@ finally:
 
 	# Save in CSV
 	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "angle", "error", "integral", "derivative", "Kp", "Ki", "Kd", "pid_output", "target_angleRate2", "error2", "integral2", "derivative2", "Kp2", "Ki2", "Kd2", "pid_output2", "pitch_offset_force", "pitch_offset", "dt", "m1_pos", "m2_pos", "m1_percent", "m2_percent"]
-	for i, m in enumerate(motors):
-		header.append("Motor%d" % i)
+	#for i, m in enumerate(motors):
+	#	header.append("Motor%d" % i)
 	header+= ["sleep_time", "sensor_time", "pid_time", "motors_time", "curses_time"]
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
 	with open('results/PID_%s_Kp%f_Ki%f_Kd%f.csv' % (ts, Kp, Ki, Kd), 'wb') as csvfile:
