@@ -166,6 +166,8 @@ try:
 		if c == 'y': Kd2 = Kd2 + KdDiff
 		if c == 'h': Kd2 = Kd2 - KdDiff if Kd2 - KdDiff >= 0 else 0
 		
+		getch_time = time.time()
+
 		angle_deg = 0
 		atan_rad  = 0
 
@@ -348,7 +350,8 @@ try:
 		sleep_time = base_sleep_time - (time.time() - init_time)
 		line.append(round(sleep_time, 4))
 		line.append(round(sensor_time - init_time, 4))
-		line.append(round(pid_time - sensor_time, 4))
+		line.append(round(getch_time - sensor_time, 4))
+		line.append(round(pid_time - getch_time, 4))
 		line.append(round(motor_time - pid_time, 4))
 		line.append(round(curses_time - motor_time, 4))
 
@@ -375,7 +378,7 @@ finally:
 	header = ["datetime", "reltime", "adxlx", "adxly", "adxlz", "gyrox", "gyroy", "gyroz", "mpu_accelx", "mpu_accely", "mpu_accelz", "distance", "atan", "angle", "error", "integral", "derivative", "Kp", "Ki", "Kd", "pid_output", "target_angleRate2", "error2", "integral2", "derivative2", "Kp2", "Ki2", "Kd2", "pid_output2", "pitch_offset_force", "pitch_offset", "dt", "m1_pos", "m2_pos", "m1_percent", "m2_percent"]
 	#for i, m in enumerate(motors):
 	#	header.append("Motor%d" % i)
-	header+= ["sleep_time", "sensor_time", "pid_time", "motors_time", "curses_time"]
+	header+= ["sleep_time", "sensor_time", "getch_time", "pid_time", "motors_time", "curses_time"]
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S_%f')
 	with open('results/PID_%s_Kp%f_Ki%f_Kd%f.csv' % (ts, Kp, Ki, Kd), 'wb') as csvfile:
 		spamwriter = csv.writer(csvfile, delimiter='	', quotechar='"', quoting=csv.QUOTE_MINIMAL)
